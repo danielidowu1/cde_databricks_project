@@ -19,7 +19,6 @@ permissions:
 
 
 env:
-  UV_PYTHON: "3.12"
   DBT_TARGET: ci
   DBT_PROFILES_DIR: .
   CI_SCHEMA: ci_pr_${{ github.event.pull_request.number }}
