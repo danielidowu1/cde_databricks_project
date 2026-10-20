@@ -1,27 +1,27 @@
 name: dbt CI
 
-# Runs on every pull request into main. Builds and tests the changed
-# project in a temporary schema (ci_pr_<number>) in the dev catalog,
-# then drops that schema.
+# Runs on every push to any branch except main (main is for deploys).
+# Builds and tests the project in a temporary schema (ci_run_<number>)
+# in the dev catalog, then drops that schema.
 
 on:
   push:
     branches: [master]
+  workflow_dispatch:
 
-# A new push to the same PR cancels the run already in progress.
+# A new push to the same branch cancels the run already in progress.
 concurrency:
-  group: dbt-ci-${{ github.event.pull_request.number }}
+  group: dbt-ci-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
-
-
 env:
+  UV_PYTHON: "3.12"
   DBT_TARGET: ci
   DBT_PROFILES_DIR: .
-  CI_SCHEMA: ci_pr_${{ github.event.pull_request.number }}
+  CI_SCHEMA: ci_run_${{ github.run_number }}
   DBX_ID_APPLICATION_ID: ${{ secrets.DBX_ID_APPLICATION_ID }}
   DBX_SECRET: ${{ secrets.DBX_SECRET }}
   DEV_HOST: ${{ secrets.DEV_HOST }}

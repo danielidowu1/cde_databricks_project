@@ -1,13 +1,13 @@
 {#
-    Drops this pull request's CI schema, plus any schema created with it
-    as a prefix (for example ci_pr_12_elementary). Called by the PR
+    Drops this CI run's schema, plus any schema created with it as a
+    prefix (for example ci_run_12_elementary). Called by the CI
     workflow after the build:
 
         dbt run-operation drop_ci_schema
 
     Guards: only runs on the ci target, and only on schemas named
-    ci_pr_<number>, so a wrong CI_SCHEMA value can never drop raw or
-    dev data.
+    ci_run_<number> or ci_pr_<number>, so a wrong CI_SCHEMA value can
+    never drop raw or dev data.
 #}
 {% macro drop_ci_schema() %}
 
@@ -19,9 +19,9 @@
 
     {% set ci_schema = target.schema | lower %}
 
-    {% if not modules.re.match('^ci_pr_[0-9]+$', ci_schema) %}
+    {% if not modules.re.match('^ci_(run|pr)_[0-9]+$', ci_schema) %}
         {{ exceptions.raise_compiler_error(
-            "Refusing to drop schema '" ~ ci_schema ~ "': expected ci_pr_<number>"
+            "Refusing to drop schema '" ~ ci_schema ~ "': expected ci_run_<number> or ci_pr_<number>"
         ) }}
     {% endif %}
 
