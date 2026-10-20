@@ -1,0 +1,59 @@
+name: dbt CI
+
+# Runs on every pull request into main. Builds and tests the changed
+# project in a temporary schema (ci_pr_<number>) in the dev catalog,
+# then drops that schema.
+
+on:
+  pull_request:
+    branches: [main]
+
+# A new push to the same PR cancels the run already in progress.
+concurrency:
+  group: dbt-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DBT_TARGET: ci
+  DBT_PROFILES_DIR: .
+  CI_SCHEMA: ci_pr_${{ github.event.pull_request.number }}
+  DBX_ID_APPLICATION_ID: ${{ secrets.DBX_ID_APPLICATION_ID }}
+  DBX_SECRET: ${{ secrets.DBX_SECRET }}
+  DEV_HOST: ${{ secrets.DEV_HOST }}
+  DEV_HTTP_PATH: ${{ secrets.DEV_HTTP_PATH }}
+  DEV_CATALOG: ${{ secrets.DEV_CATALOG }}
+
+jobs:
+  dbt-build:
+    name: dbt build (ci)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: cde_project
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies from uv.lock
+        run: uv sync --frozen
+
+      - name: Install dbt packages
+        run: uv run dbt deps
+
+      - name: Test connection
+        run: uv run dbt debug
+
+      - name: Build and test models
+        run: uv run dbt build --select +fct_marketing_spend
+
+      - name: Drop CI schema
+        if: always()
+        run: uv run dbt run-operation drop_ci_schema
