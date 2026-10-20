@@ -1,0 +1,72 @@
+models:
+  - name: stg_facebook__account
+    description: Facebook ad accounts, latest version per account.
+    columns:
+      - name: account_id
+        data_tests:
+          - unique
+          - not_null
+      - name: currency_code
+        description: ISO currency code, upper case. Spend for this account is in this currency.
+
+  - name: stg_facebook__campaign
+    description: Facebook campaigns, latest version per campaign.
+    columns:
+      - name: campaign_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_facebook__adgroup
+    description: Facebook ad groups, extracted from the denormalised adgroup table. Latest version per ad group.
+    columns:
+      - name: ad_group_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_facebook__ads
+    description: Facebook ads, latest version per ad.
+    columns:
+      - name: ad_id
+        data_tests:
+          - unique
+          - not_null
+      - name: ad_status
+        description: Lower-cased delivery status.
+
+  - name: stg_facebook__ads_stats
+    description: Facebook daily ad performance. Grain is one row per ad per day.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [ad_id, report_date]
+    columns:
+      - name: ad_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_facebook__ads')
+                field: ad_id
+              config:
+                severity: warn
+      - name: account_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_facebook__account')
+                field: account_id
+              config:
+                severity: warn
+      - name: report_date
+        data_tests:
+          - not_null
+      - name: spend
+        description: Spend in the account currency.
+        data_tests:
+          - not_null
+      - name: impressions
+        description: Cast from string. Missing or literal 'null' values are 0.
+      - name: clicks
+        description: Cast from string. Missing or literal 'null' values are 0.

@@ -1,0 +1,16 @@
+[project]
+name = "cdc-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "dbt-databricks>=1.12.7",
+]
+
+[project.scripts]
+cdc-project = "cdc_project:main"
+
+[build-system]
+requires = ["uv_build>=0.12.20,<0.13.0"]
+build-backend = "uv_build"

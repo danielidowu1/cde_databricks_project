@@ -1,0 +1,76 @@
+models:
+  - name: fct_marketing_spend
+    description: >
+      Unified daily advertising performance across Facebook and Snapchat.
+      Grain is one row per platform, ad, day and country. Spend is in the
+      currency in currency_code; convert before summing across currencies.
+      ctr, cpc and cpm are row-level ratios: recompute them from summed
+      spend, impressions and clicks when aggregating, never average them.
+    columns:
+      - name: marketing_spend_id
+        description: Surrogate key on platform, ad_id, report_date and country_code.
+        data_tests:
+          - unique
+          - not_null
+      - name: platform
+        description: Source ad platform.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['facebook', 'snapchat']
+      - name: report_date
+        description: Day the stats relate to.
+        data_tests:
+          - not_null
+      - name: account_id
+        description: Ad account id. Snapchat accounts come from the campaign table.
+      - name: account_name
+        description: Ad account name. Null for Snapchat (no account table in the source).
+      - name: campaign_id
+        description: Campaign id.
+      - name: campaign_name
+        description: Campaign name.
+      - name: ad_group_id
+        description: Ad group (Snapchat ad squad) id.
+      - name: ad_group_name
+        description: Ad group name.
+      - name: ad_id
+        description: Ad id.
+        data_tests:
+          - not_null
+      - name: ad_name
+        description: Ad name.
+      - name: ad_status
+        description: Lower-cased ad status. Null for Snapchat (not in the source).
+      - name: country_code
+        description: ISO country code. Null for Facebook (not reported by country).
+      - name: currency_code
+        description: Currency of spend.
+      - name: spend
+        description: Spend in currency_code.
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: impressions
+        description: Impressions.
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: clicks
+        description: Clicks.
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+      - name: ctr
+        description: clicks / impressions. Null when impressions is 0.
+      - name: cpc
+        description: spend / clicks. Null when clicks is 0.
+      - name: cpm
+        description: spend * 1000 / impressions. Null when impressions is 0.

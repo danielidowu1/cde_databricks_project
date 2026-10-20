@@ -1,0 +1,51 @@
+sources:
+  - name: facebook
+    database: cde_landing
+    schema: cdc_stg
+    description: Data from the Facebook Ads platform (static).
+    config:
+      enabled: true
+      meta:
+        owner: "@idowu"
+      freshness:
+        warn_after:
+          count: 2
+          period: day
+
+    tables:
+      - name: account
+        description: Facebook ad accounts, one row per account version.
+        config:
+          enabled: true
+          loaded_at_field: account_updated_at
+          event_time: account_updated_at
+
+      - name: campaign
+        description: Facebook campaigns.
+        config:
+          enabled: true
+          loaded_at_field: campaign_updated_at
+          event_time: campaign_updated_at
+
+      - name: adgroup
+        description: >
+          Facebook ad groups. Denormalised: ad, campaign, account and daily
+          stats columns are repeated on each row.
+        config:
+          enabled: true
+          loaded_at_field: ad_group_updated_at
+          event_time: ad_group_updated_at
+
+      - name: ads
+        description: Facebook ads with their ad group, campaign and account ids.
+        config:
+          enabled: true
+          loaded_at_field: ad_updated_at
+          event_time: ad_updated_at
+
+      - name: ads_stats
+        description: Facebook daily ad performance (spend, impressions, clicks).
+        config:
+          enabled: true
+          loaded_at_field: ad_date
+          event_time: ad_date

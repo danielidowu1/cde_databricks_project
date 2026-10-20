@@ -1,0 +1,79 @@
+models:
+  - name: stg_snapchat__campaign
+    description: Snapchat campaigns with their ad account id.
+    columns:
+      - name: campaign_id
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_snapchat__adgroup
+    description: Snapchat ad groups, latest version per ad group.
+    columns:
+      - name: ad_group_id
+        data_tests:
+          - unique
+          - not_null
+      - name: campaign_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_snapchat__campaign')
+                field: campaign_id
+              config:
+                severity: warn
+
+  - name: stg_snapchat__ad
+    description: Snapchat ads, latest version per ad.
+    columns:
+      - name: ad_id
+        data_tests:
+          - unique
+          - not_null
+      - name: ad_group_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_snapchat__adgroup')
+                field: ad_group_id
+              config:
+                severity: warn
+
+  - name: stg_snapchat__stats
+    description: Snapchat daily ad performance. Grain is one row per ad, day and country.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [ad_id, report_date, country_code]
+    columns:
+      - name: ad_id
+        description: Renamed from ad_detail_id.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_snapchat__ad')
+                field: ad_id
+              config:
+                severity: warn
+      - name: report_date
+        data_tests:
+          - not_null
+      - name: country_code
+        description: ISO country code, upper case.
+      - name: currency_code
+        description: ISO currency code of spend, upper case.
+      - name: spend
+        description: Spend in currency units (already converted from micro-currency upstream).
+        data_tests:
+          - not_null
+      - name: clicks
+        description: Cast from string. Missing or literal 'null' values are 0.
+      - name: source_system
+        description: Raw data_src value.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['snapchat_ads']
+              config:
+                severity: warn

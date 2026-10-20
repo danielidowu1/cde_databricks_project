@@ -1,0 +1,22 @@
+models:
+  - name: int_facebook_ads
+    description: Facebook daily ad stats joined to ad, ad group, campaign and account, in the common marketing schema.
+    columns:
+      - name: ad_name
+        description: Null when the stats row has no matching ad (see the relationships test on stg_facebook__ads_stats).
+
+  - name: int_snapchat_ads
+    description: Snapchat daily ad stats joined to ad, ad group and campaign, in the common marketing schema.
+    columns:
+      - name: ad_name
+        description: Null when the stats row has no matching ad (see the relationships test on stg_snapchat__stats).
+
+  - name: int_marketing_ads
+    description: Union of all platform models. One schema, one row per platform, ad, day and country.
+    columns:
+      - name: platform
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['facebook', 'snapchat']

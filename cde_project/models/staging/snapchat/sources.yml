@@ -1,0 +1,43 @@
+sources:
+  - name: snapchat
+    database: cde_landing
+    schema: cdc_stg
+    description: Data from the Snapchat Ads platform (static).
+    config:
+      enabled: true
+      meta:
+        owner: "@idowu"
+      freshness:
+        warn_after:
+          count: 2
+          period: day
+
+    tables:
+      - name: snapchat_ads_campaign
+        description: Snapchat campaigns with their ad account id.
+        config:
+          enabled: true
+          # no timestamp column on this table, so no event_time or freshness
+          freshness: null
+
+      - name: snapchat_ads_adgroup
+        description: Snapchat ad groups.
+        config:
+          enabled: true
+          loaded_at_field: ad_group_updated_at
+          event_time: ad_group_updated_at
+
+      - name: snapchat_ads_ad
+        description: Snapchat ads.
+        config:
+          enabled: true
+          loaded_at_field: ad_detail_updated_at
+          event_time: ad_detail_updated_at
+
+      - name: snapchat_ads_stats
+        description: >
+          Snapchat daily ad performance by country. ad_detail_id is the ad id.
+        config:
+          enabled: true
+          loaded_at_field: ad_date
+          event_time: ad_date
