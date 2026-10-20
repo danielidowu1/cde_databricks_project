@@ -5,7 +5,7 @@ name: dbt CI
 # then drops that schema.
 
 on:
-  pull_request:
+  push:
     branches: [master]
 
 # A new push to the same PR cancels the run already in progress.
