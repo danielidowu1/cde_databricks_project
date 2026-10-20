@@ -6,7 +6,7 @@ name: dbt CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [master]
 
 # A new push to the same PR cancels the run already in progress.
 concurrency:
@@ -19,7 +19,7 @@ permissions:
 env:
   DBT_TARGET: ci
   DBT_PROFILES_DIR: .
-  CI_SCHEMA: ci_pr_${{ github.event.pull_request.number }}
+  DEV_SCHEMA: ci_pr_${{ github.event.pull_request.number }}
   DBX_ID_APPLICATION_ID: ${{ secrets.DBX_ID_APPLICATION_ID }}
   DBX_SECRET: ${{ secrets.DBX_SECRET }}
   DEV_HOST: ${{ secrets.DEV_HOST }}
