@@ -18,7 +18,6 @@ permissions:
   contents: read
 
 env:
-  UV_PYTHON: "3.12"
   DBT_TARGET: ci
   DBT_PROFILES_DIR: .
   CI_SCHEMA: ci_run_${{ github.run_number }}
